@@ -24,14 +24,26 @@ int main(int argc, char* argv[]) {
     std::copy(iter, all_args.end(), std::back_inserter(arguments));
   }
 
+  if(arguments.size() == 0) {
+
+    std::cout << "Error, no arguments were given" << std::endl;
+    return 1;
+  }
+
   for(auto e : arguments) {
 
     std::cout << e << std::endl;
   }
 
   std::cout << "Filename: " << file_name << std::endl;
+  
+  std::ifstream file(file_name);
 
-  std::ifstream file("test.txt");
+  if(!file.is_open()) {
+
+    std::cout << "Error opening specified file." << std::endl;
+    return 1;
+  }
 
   return 0;
 }

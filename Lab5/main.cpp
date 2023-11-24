@@ -10,11 +10,38 @@
 
 //#include "functions.hpp"
 
-std::vector<std::string> arguments{};
+std::vector<std::string> text{};
 
 void print_flag() {
 
+ auto print = [](const std::string& n) { std::cout << n << ' '; };
+ 
+    std::cout << std::endl;
+    std::for_each(text.cbegin(), text.cend(), print);
+    std::cout << '\n'; 
 }
+
+void table_flag() {
+
+
+}
+
+void frequency_flag () {
+
+
+
+}
+
+void substitute_flag (std::string const & parameter)  {
+
+
+}
+
+void remove_flag (std::string const & parameter) {
+
+
+}
+
 
 void process_arg(std::string argument) 
 {
@@ -40,17 +67,33 @@ void process_arg(std::string argument)
   
   if(flag == "print"){
     print_flag();
+
+  } else if (flag == "frequency") {
+
+
+  } else if (flag == "table") {
+
+
+  } else if (flag == "substitute") {
+
+
+  } else if (flag == "remove") {
+
+
+  } else {
+
+    std::cout << "Error: flag not recognised." << std::endl;
   }
 
-  std::cout << "Flag: " << flag << std::endl << "Parameter: " << parameter << std::endl; 
-
+  //std::cout << "Flag: " << flag << std::endl << "Parameter: " << parameter << std::endl; 
+  
 }
 
 
 int main(int argc, char* argv[]) {
   
   std::string file_name {};
-  std::vector<std::string> text{};
+  std::vector<std::string> arguments{};
 
   {
     std::vector<std::string> all_args {argv, argv + argc};

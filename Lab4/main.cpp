@@ -1,3 +1,12 @@
+// TODO: Complementary work needed: The program should not run given an
+// incorrect number of arguments.
+//
+// Hint: You can exit early before creating args if that is the case.
+//
+// Solution: Now the number of arguments should be only and only 5.
+
+// Comment: Otherwise excellent error handling!
+
 #include "circuits.hpp"
 #include <vector>
 #include <string>
@@ -9,14 +18,14 @@ int main (int argc, char* argv[]){
 
   
   std::vector<std::string> args {argv, argv + argc};
-  try {
-    if(argc < 5) {
 
-      throw 1;
-    }
-  } catch (int error){
-
+  if(argc < 5) {
     std::cout << "Missing arguments." << std::endl;
+    return 1;
+  }
+
+  if(argc > 5) {
+    std::cout << "Too many arguments." << std::endl;
     return 1;
   }
 
@@ -29,62 +38,53 @@ int main (int argc, char* argv[]){
 
     simulations = std::stoi(args[1]);
 
-    if(simulations < 0) {
-
-      throw 1; 
-    }
-  } catch (int error) {
-
-    std::cout << "Simulations should be positive." << std::endl;
-    return 1;
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument const & e) {
 
     std::cout << "Invalid argument for simulations." << std::endl;
     return 1;
   }
+
+  if(simulations < 0) {
+    std::cout << "Simulations should be positive." << std::endl;
+    return 1; 
+  }
+
   
   try {
 
     prints = std::stoi(args[2]);
-
-    if(prints < 0) {
-
-      throw 1; 
-    }
-
-    if(prints > simulations) {
-
-      throw 'e';
-    }
-  } catch (int error) {
-
-    std::cout << "Prints should be positive." << std::endl;
-    return 1;
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument const & e) {
 
     std::cout << "Invalid argument for prints." << std::endl;
     return 1;
-  } catch (char error) {
+  }
+
+  if(prints < 0) {
+
+    std::cout << "Prints should be positive." << std::endl;
+    return 1; 
+  }
+
+  if(prints > simulations) {
 
     std::cout << "Prints should be less than simulations." << std::endl;
     return 1;
   }
 
+
   try {
 
     step = std::stod(args[3]);
 
-    if(step < 0) {
-
-      throw 1; 
-    }
-  } catch (int error) {
-
-    std::cout << "Steps should be positive." << std::endl;
-    return 1;
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument const & e) {
 
     std::cout << "Invalid argument for steps." << std::endl;
+    return 1;
+  }
+
+  if(step < 0) {
+
+    std::cout << "Steps should be positive." << std::endl;
     return 1;
   }
 
@@ -92,43 +92,60 @@ int main (int argc, char* argv[]){
 
     battery = std::stod(args[4]);
 
-    if(battery < 0) {
-
-      throw 1; 
-    }
-  } catch (int error) {
-
-    std::cout << "Battery should be positive." << std::endl;
-    return 1;
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument const & e) {
 
     std::cout << "Invalid argument for battery." << std::endl;
     return 1;
   }
+
+  if(battery <= 0) {
+
+    std::cout << "Battery should be positive." << std::endl;
+    return 1; 
+  }
   
 
   {
-  Node p, n, z;
-  Circuit circuit;
+    //Example circuit 1
+    Node a,b,c,d;
+    Circuit circuit;
+    circuit.add_component(new Battery(&a, &d, "Bat", battery));
+    circuit.add_component(new Resistance(&a, &b, "R1", 6));
+    circuit.add_component(new Resistance(&b, &c, "R2", 4));
+    circuit.add_component(new Resistance(&c, &d, "R3", 8));
+    circuit.add_component(new Resistance(&b, &d, "R4", 12));
 
-  (circuit.net).push_back(new Resistance(&p, &n, "R1", 50.0));
-  (circuit.net).push_back(new Battery(&p, &z, "Bat", battery));
-  (circuit.net).push_back(new Resistance(&n, &z, "R2", 50.0));
+    circuit.simulate(simulations, prints, step);
+  }
+  {
+    //Example circuit 2
+    Node p,l,r,n;
+    Circuit circuit;
+    
+    circuit.add_component(new Battery(&p, &n, "Bat", battery));
+    circuit.add_component(new Resistance(&p, &l, "R1", 150));
+    circuit.add_component(new Resistance(&p, &r, "R2", 50));
+    circuit.add_component(new Resistance(&r, &l, "R3", 100));
+    circuit.add_component(new Resistance(&l, &n, "R4", 300));
+    circuit.add_component(new Resistance(&r, &n, "R5", 250));
 
-  circuit.simulate(simulations, prints, step);
+    circuit.simulate(simulations, prints, step);
   }
 
   {
-  Node p, n;
-  Circuit circuit;
+    //Example circuit 3
+    Node p,l,r,n;
+    Circuit circuit;
 
-  (circuit.net).push_back(new Capacitor(&p, &n, "C1", 0.05));
-  (circuit.net).push_back(new Battery(&p, &n, "Bat", battery));
-  (circuit.net).push_back(new Resistance(&p, &n, "R2", 50.0));
+    circuit.add_component(new Battery(&p, &n, "Bat", battery));
+    circuit.add_component(new Resistance(&p, &l, "R1", 150));
+    circuit.add_component(new Resistance(&p, &r, "R2", 50));
+    circuit.add_component(new Capacitor(&r, &l, "C3", 1));
+    circuit.add_component(new Resistance(&l, &n, "R4", 300));
+    circuit.add_component(new Capacitor(&r, &n, "C5", 0.75));
 
-  circuit.simulate(simulations, prints, step);
+    circuit.simulate(simulations, prints, step);
   }
-
 
   return 0;
 }

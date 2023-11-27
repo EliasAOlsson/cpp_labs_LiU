@@ -1,12 +1,3 @@
-// TODO: Complementary work needed: The program should not run given an
-// incorrect number of arguments.
-//
-// Hint: You can exit early before creating args if that is the case.
-//
-// Solution: Now the number of arguments should be only and only 5.
-
-// Comment: Otherwise excellent error handling!
-
 #include "circuits.hpp"
 #include <vector>
 #include <string>

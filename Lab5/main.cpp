@@ -52,11 +52,11 @@ void frequency_flag () {
                                                                std::pair<std::string, uint64_t> rhs) ->bool {
     return  lhs.second > rhs.second; 
   });
-  
-   std::for_each(frequency_table.begin(), frequency_table.end(), [](std::pair<std::string, uint64_t> par) {
+ 
+  std::for_each(frequency_table.begin(), frequency_table.end(), [](std::pair<std::string, uint64_t> par) {
 
     std::cout << std::left << std::setw(11) << par.first << " " << par.second << std::endl;
-  });
+  }); 
 }
 
 void substitute_flag (std::string const & parameter)  {

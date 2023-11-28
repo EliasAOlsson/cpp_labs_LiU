@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <atomic>
 #include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -18,13 +20,19 @@ void print_flag() {
   std::cout << std::endl;
 }
 
-void table_flag() {
-  std::map<std::string, uint64_t> table{};
+
+void create_table(std::map<std::string, uint64_t>* table) {
 
   std::for_each(text.begin(), text.end(), [&table](std::string word){
 
-    ++table[word];
+    ++((*table)[word]);
   });
+}
+
+void table_flag() {
+  std::map<std::string, uint64_t> table{};
+
+  create_table(&table);
 
   std::for_each(table.begin(), table.end(), [](std::pair<std::string, uint64_t> par) {
 
@@ -33,13 +41,27 @@ void table_flag() {
 }
 
 void frequency_flag () {
+  std::map<std::string, uint64_t> table{};
+  std::vector<std::pair<std::string, uint64_t>> frequency_table;
 
+  create_table(&table);
 
+  std::copy(table.begin(), table.end(), std::back_inserter(frequency_table));
+
+  std::sort(frequency_table.begin(), frequency_table.end(), [](std::pair<std::string, uint64_t> lhs,
+                                                               std::pair<std::string, uint64_t> rhs) ->bool {
+    return  lhs.second > rhs.second; 
+  });
+  
+   std::for_each(frequency_table.begin(), frequency_table.end(), [](std::pair<std::string, uint64_t> par) {
+
+    std::cout << std::left << std::setw(11) << par.first << " " << par.second << std::endl;
+  });
 }
 
 void substitute_flag (std::string const & parameter)  {
   
-  std::size_t found = parameter.find("+");
+  std::size_t found {parameter.find("+")};
 
   if(std::string::npos == found) {
 
@@ -90,7 +112,7 @@ void process_arg(std::string argument)
 
   argument = argument.erase(0, 2);
 
-  std::size_t found = argument.find("=");
+  std::size_t found {argument.find("=")};
 
   if (found != std::string::npos) {
     parameter = argument.substr(found+1, argument.size());
@@ -134,7 +156,7 @@ int main(int argc, char* argv[]) {
     }
     file_name = all_args[1];
 
-    auto iter = all_args.begin();
+    auto iter {all_args.begin()};
 
     iter = std::next(iter, 2);
     

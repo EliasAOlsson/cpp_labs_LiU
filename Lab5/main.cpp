@@ -1,151 +1,11 @@
-#include <algorithm>
-#include <atomic>
-#include <cstddef>
-#include <cstdint>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <map>
-#include <string>
-#include <vector>
-
-
-std::vector<std::string> text{};
-
-void print_flag() {
-  std::copy(text.begin(), text.end(), 
-            std::ostream_iterator<std::string>{std::cout, " "});
-
-  std::cout << std::endl;
-}
-
-
-void create_table(std::map<std::string, uint64_t>* table) {
-
-  std::for_each(text.begin(), text.end(), [&table](std::string word){
-
-    ++((*table)[word]);
-  });
-}
-
-void table_flag() {
-  std::map<std::string, uint64_t> table{};
-
-  create_table(&table);
-
-  std::for_each(table.begin(), table.end(), [](std::pair<std::string, uint64_t> par) {
-
-    std::cout << std::left << std::setw(11) << par.first << " " << par.second << std::endl;
-  });
-}
-
-void frequency_flag () {
-  std::map<std::string, uint64_t> table{};
-  std::vector<std::pair<std::string, uint64_t>> frequency_table;
-
-  create_table(&table);
-
-  std::copy(table.begin(), table.end(), std::back_inserter(frequency_table));
-
-  std::sort(frequency_table.begin(), frequency_table.end(), [](std::pair<std::string, uint64_t> lhs,
-                                                               std::pair<std::string, uint64_t> rhs) ->bool {
-    return  lhs.second > rhs.second; 
-  });
- 
-  std::for_each(frequency_table.begin(), frequency_table.end(), [](std::pair<std::string, uint64_t> par) {
-
-    std::cout << std::left << std::setw(11) << par.first << " " << par.second << std::endl;
-  }); 
-}
-
-void substitute_flag (std::string const & parameter)  {
-  
-  std::size_t found {parameter.find("+")};
-
-  if(std::string::npos == found) {
-
-    std::cout << "Error: parameter for substitute flag is invalid." << std::endl;
-    return;
-  }
-  if(0 == found) {
-
-    std::cout << "Error: missing first parameter for substitution flag." << std::endl;
-    return;
-  }
-  if(parameter.size()-1 == found) {
-
-    std::cout << "Error: missing second parameter for substitution flag. " << std::endl;
-    return;
-  }
-
-  std::string old_str {parameter.substr(0, found)};
-
-  std::string new_str {parameter.substr(found + 1, parameter.size())};
-
-  std::replace(text.begin(), text.end(), old_str, new_str);
-}
-
-void remove_flag (std::string const & parameter) {
-
-  if("" == parameter) {
-
-    std::cout << "Error: missing parameter for remove flag" << std::endl;
-    return;
-  }
-
-  auto remove_end {std::remove(text.begin(), text.end(), parameter)};
-
-  text.erase(remove_end, text.end());
-}
-
-
-void process_arg(std::string argument) 
-{
-  std::string flag{};
-  std::string parameter{""};
-
-  if(argument.size() < 3) {
-    std::cout << "Error: argument size too short. Bad format." << std::endl;
-    return;
-  }
-
-  argument = argument.erase(0, 2);
-
-  std::size_t found {argument.find("=")};
-
-  if (found != std::string::npos) {
-    parameter = argument.substr(found+1, argument.size());
-  }
-
-  flag = argument.substr(0, found);
-  
-  if(flag == "print"){
-    print_flag();
-
-  } else if (flag == "frequency") {
-    frequency_flag();
-
-  } else if (flag == "table") {
-    table_flag(); 
-
-  } else if (flag == "substitute") {
-    substitute_flag(parameter);
-
-  } else if (flag == "remove") {
-    remove_flag(parameter);
-
-  } else {
-    std::cout << "Error: flag not recognised." << std::endl;
-
-  }
-}
+#include "functions.hpp"
 
 
 int main(int argc, char* argv[]) {
   
   std::string file_name {};
   std::vector<std::string> arguments{};
+  std::vector<std::string> text{};
 
   {
     std::vector<std::string> all_args {argv, argv + argc};
@@ -183,7 +43,36 @@ int main(int argc, char* argv[]) {
 
   file.close();
 
-  std::for_each(arguments.begin(), arguments.end(), process_arg);
+  std::for_each(std::begin(arguments), std::end(arguments), [&text](std::string arg) -> void {
+    std::pair<std::string, std::string> par;
+
+    process_arg(arg, &par);
+
+    if("" == par.first) {
+      return;
+    }
+
+    if(par.first == "print"){
+      print_flag(text);
+
+    } else if (par.first == "frequency") {
+      frequency_flag(text);
+
+    } else if (par.first == "table") {
+      table_flag(text); 
+
+    } else if (par.first == "substitute") {
+      substitute_flag(par.second, text);
+
+    } else if (par.first == "remove") {
+      remove_flag(par.second, text);
+
+    } else {
+      std::cout << "Error: flag not recognised." << std::endl;
+
+    }
+
+  }); //Lambda end
 
   return 0;
 }

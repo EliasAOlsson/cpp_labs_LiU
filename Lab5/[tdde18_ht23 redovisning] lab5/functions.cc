@@ -1,6 +1,5 @@
 #include  "functions.h"
 #include <iomanip>
-#include <ios>
 
 // TODO: Complementary work needed: Do not repeat similar code. Reuse code for the 
 // two table operations (--table and --frequency) 
@@ -14,7 +13,6 @@ void print_flag(std::vector<std::string> const & text) {
 
   std::cout << std::endl;
 }
-
 
 std::map<std::string, uint64_t> create_table(std::vector<std::string> const & text) {
 
